@@ -1,2 +1,25 @@
 body.plugin-cm-typewriter-scroll {
+  .CodeMirror-lines {
+    position: relative;
+    z-index: 0;
+  }
+
+  .CodeMirror-lines>.cm-typewriter-scroll-zen-before,
+  .CodeMirror-lines>.cm-typewriter-scroll-zen-after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    background-color: var(--background-primary);
+    opacity: 0.8;
+    z-index: 5;
+  }
+
+  .CodeMirror-lines>.cm-typewriter-scroll-zen-before {
+    top: 0;
+  }
+
+  .CodeMirror-lines>.cm-typewriter-scroll-zen-after {
+    bottom: 0;
+  }
 }

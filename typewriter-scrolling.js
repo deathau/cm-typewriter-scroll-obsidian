@@ -9,9 +9,16 @@ CodeMirror.commands.scrollSelectionToCenter = function (cm) {
     var top = charCoords.top;
     var halfLineHeight = (charCoords.bottom - top) / 2;
     var halfWindowHeight = cm.getWrapperElement().offsetHeight / 2;
-    var scrollTo = Math.round((top - halfWindowHeight + halfLineHeight));
-    cm.scrollTo(null, scrollTo);
+    var lineTop = Math.round((top - halfWindowHeight + halfLineHeight));
+    var lineBottom = Math.round(lineTop + (halfLineHeight * 2));
+    cm.scrollTo(null, lineTop);
+    var linesEl = cm.getScrollerElement().querySelector('.CodeMirror-lines');
+    var topEl = linesEl.querySelector('.cm-typewriter-scroll-zen-before');
+    topEl.style.height = (lineTop - halfLineHeight + parseInt(linesEl.style.paddingTop)) + 'px';
+    var bottomEl = linesEl.querySelector('.cm-typewriter-scroll-zen-after');
+    bottomEl.style.top = (lineBottom - halfLineHeight + parseInt(linesEl.style.paddingTop)) + 'px';
 };
+var shadow = null;
 CodeMirror.defineOption("typewriterScrolling", false, function (cm, val, old) {
     if (old && old != CodeMirror.Init) {
         const linesEl = cm.getScrollerElement().querySelector('.CodeMirror-lines');
@@ -24,6 +31,13 @@ CodeMirror.defineOption("typewriterScrolling", false, function (cm, val, old) {
         cm.on("changes", onChanges);
         cm.on("cursorActivity", onCursorActivity);
         cm.on("refresh", onRefresh);
+        const linesEl = cm.getScrollerElement().querySelector('.CodeMirror-lines');
+        let div = document.createElement('div');
+        div.classList.add('cm-typewriter-scroll-zen-before');
+        linesEl.appendChild(div);
+        div = document.createElement('div');
+        div.classList.add('cm-typewriter-scroll-zen-after');
+        linesEl.appendChild(div);
     }
 });
 function onChanges(cm, changes) {
