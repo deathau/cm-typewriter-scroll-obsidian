@@ -4,5 +4,5 @@
   "author": "death_au",
   "description": "Typewriter-style scrolling which keeps the view centered in the editor.",
   "isDesktopOnly": false,
-  "version": "0.0.0"
+  "version": "0.0.1"
 }
