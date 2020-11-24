@@ -21,6 +21,7 @@ CodeMirror.defineOption("typewriterScrolling", false, function (cm, val, old) {
         cm.off("refresh", onRefresh);
     }
     if (val) {
+        onRefresh(cm);
         cm.on("changes", onChanges);
         cm.on("cursorActivity", onCursorActivity);
         cm.on("refresh", onRefresh);
@@ -39,11 +40,14 @@ function onChanges(cm, changes) {
     }
 }
 function onCursorActivity(cm) {
+    const linesEl = cm.getScrollerElement().querySelector('.CodeMirror-lines');
     if (cm.getSelection().length !== 0) {
-        return;
+        linesEl.classList.add("selecting")
+    }
+    else {
+        linesEl.classList.remove("selecting")
     }
     cm.execCommand("scrollSelectionToCenter");
-    return;
 }
 function onRefresh(cm) {
     const halfWindowHeight = cm.getWrapperElement().offsetHeight / 2;

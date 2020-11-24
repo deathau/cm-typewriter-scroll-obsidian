@@ -75,5 +75,11 @@ much, feel free to throw some coins in my hat via the following:
 [![Paypal](https://img.shields.io/badge/paypal-deathau-yellow?style=social&logo=paypal)](https://paypal.me/deathau)
 
 # Version History
+## 0.0.2
+- Added a basic 'Zen Mode' which dims non-active lines in the editor
+  - "Active Line" will include an entire paragraph at this stage
+  - Togglable in settings and via a command
+- Fixed some minor issues around disabling / enabling
+
 ## 0.0.1
 Initial Release

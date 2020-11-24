@@ -1,2 +1,8 @@
-body.plugin-cm-typewriter-scroll {
+body{
+  --zen-opacity: 0.25
+}
+body.plugin-cm-typewriter-scroll-zen {
+  .CodeMirror-lines:not(.selecting) .CodeMirror-code>:not(.CodeMirror-activeline) {
+    opacity: var(--zen-opacity);
+  }
 }
