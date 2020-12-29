@@ -10,7 +10,7 @@ A plugin for [Obsidian](https://obsidian.md) to enable typewriter-style scrollin
 
 Custom plugins are only available for Obsidian v0.9.7+.
 
-The current API of this repo targets Obsidian **v0.9.7**. 
+The current API of this repo targets Obsidian **v0.10.0**. 
 
 ### Notes
 This is all very experimental at the moment, so parts might not work, etc.
@@ -75,6 +75,9 @@ much, feel free to throw some coins in my hat via the following:
 [![Paypal](https://img.shields.io/badge/paypal-deathau-yellow?style=social&logo=paypal)](https://paypal.me/deathau)
 
 # Version History
+## 0.1.0
+- Updated APIs so toggling on and off should work again.
+
 ## 0.0.2
 - Added a basic 'Zen Mode' which dims non-active lines in the editor
   - "Active Line" will include an entire paragraph at this stage
