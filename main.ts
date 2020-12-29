@@ -2,106 +2,105 @@ import './styles.scss'
 import './typewriter-scrolling'
 import { Plugin, MarkdownView, PluginSettingTab, App, Setting } from 'obsidian';
 
+class CMTypewriterScrollSettings {
+  enabled: boolean;
+  zenEnabled: boolean;
+}
+
+const DEFAULT_SETTINGS: CMTypewriterScrollSettings = {
+  enabled: true,
+  zenEnabled: false
+}
+
 export default class CMTypewriterScrollPlugin extends Plugin {
   settings: CMTypewriterScrollSettings;
-  async onInit() {
-    
-  }
 
   async onload() {
-    const data = await this.loadData();
-    if (data) this.settings = new CMTypewriterScrollSettings(data);
-    else this.settings =  new CMTypewriterScrollSettings();
-    if (this.settings.enabled) {
-      (this.app.workspace as any).layoutReady ? this.enable() : this.app.workspace.on('layout-ready', this.enable);
-    }
+    this.settings = Object.assign(DEFAULT_SETTINGS, await this.loadData());
+    
+    // enable the plugin (based on settings)
+    if (this.settings.enabled) this.enableTypewriterScroll();
+    if (this.settings.zenEnabled) this.enableZen();
 
     // add the settings tab
     this.addSettingTab(new CMTypewriterScrollSettingTab(this.app, this));
 
+    // add the commands / keyboard shortcuts
+    this.addCommands();
+  }
+
+  onunload() {
+    // disable the plugin
+    this.disableTypewriterScroll();
+    this.disableZen();
+  }
+
+  addCommands() { 
     // add the toggle on/off command
     this.addCommand({
       id: 'toggle-typewriter-sroll',
       name: 'Toggle On/Off',
-      callback: () => {
-        // disable or enable as necessary
-        this.settings.enabled ? this.disable() : this.enable();
-        this.settings.enabled = !this.settings.enabled;
-        this.saveData(this.settings);
-      }
+      callback: () => { this.toggleTypewriterScroll(); }
     });
 
     // toggle zen mode
     this.addCommand({
       id: 'toggle-typewriter-sroll-zen',
       name: 'Toggle Zen Mode On/Off',
-      callback: () => {
-        // disable or enable as necessary
-        this.settings.zenEnabled ? this.disableZen() : this.enableZen();
-        this.settings.zenEnabled = !this.settings.zenEnabled;
-        this.saveData(this.settings);
-      }
+      callback: () => { this.toggleZen(); }
     });
   }
 
-  onunload() {
-    this.disable(true);
-  }
-  
-  disable = (unloading = false) => {
-    document.body.classList.remove('plugin-cm-typewriter-scroll');
-
-    this.app.off("codemirror", this.addTypewriterScroll);
-
-    this.app.workspace.getLeavesOfType("markdown").forEach((leaf) => {
-      if (leaf.view instanceof MarkdownView) {
-        this.addTypewriterScroll(leaf.view.sourceMode.cmEditor, false);
-      }
-    })
-
-    if (unloading) this.disableZen();
+  toggleTypewriterScroll = (newValue: boolean = null) => {
+    // if no value is passed in, toggle the existing value
+    if (newValue === null) newValue = !this.settings.enabled;
+    // assign the new value and call the correct enable / disable function
+    (this.settings.enabled = newValue)
+      ? this.enableTypewriterScroll() : this.disableTypewriterScroll();
+    // save the new settings
+    this.saveData(this.settings);
   }
 
-  enable = () => {
+  toggleZen = (newValue: boolean = null) => {
+    // if no value is passed in, toggle the existing value
+    if (newValue === null) newValue = !this.settings.zenEnabled;
+    // assign the new value and call the correct enable / disable function
+    (this.settings.zenEnabled = newValue)
+      ? this.enableZen() : this.disableZen();
+    // save the new settings
+    this.saveData(this.settings);
+  }
+
+  enableTypewriterScroll = () => {
+    // add the class
     document.body.classList.add('plugin-cm-typewriter-scroll');
 
-    this.app.on("codemirror", this.addTypewriterScroll);
+    // register the codemirror add on setting
+    this.registerCodeMirror(cm => {
+      // @ts-ignore
+      cm.setOption("typewriterScrolling", true);
+    });
+  }
+  
+  disableTypewriterScroll = () => {
+    // remove the class
+    document.body.classList.remove('plugin-cm-typewriter-scroll');
 
-    this.app.workspace.getLeavesOfType("markdown").forEach((leaf) => {
-      if (leaf.view instanceof MarkdownView) {
-        this.addTypewriterScroll(leaf.view.sourceMode.cmEditor);
-      }
-    })
-
-    if (this.settings.zenEnabled) this.enableZen();
+    // remove the codemirror add on setting
+    this.app.workspace.iterateCodeMirrors(cm => {
+      // @ts-ignore
+      cm.setOption("typewriterScrolling", false);
+    });
   }
 
   enableZen = () => {
+    // add the class
     document.body.classList.add('plugin-cm-typewriter-scroll-zen');
   }
 
   disableZen = () => {
+    // remove the class
     document.body.classList.remove('plugin-cm-typewriter-scroll-zen');
-  }
-
-  // @ts-ignore
-  addTypewriterScroll = (cm: CodeMirror.Editor, enable: boolean = true) => {
-    console.log('here');
-    cm.setOption("typewriterScrolling", enable);
-  }
-}
-
-class CMTypewriterScrollSettings {
-  enabled: boolean;
-  zenEnabled: boolean;
-
-  constructor(settings: any = {
-    // default settings:
-    enabled: true,
-    zenEnabled: false
-  }) {
-    this.enabled = !!settings.enabled;
-    this.zenEnabled = !!settings.zenEnabled;
   }
 }
 
@@ -121,32 +120,18 @@ class CMTypewriterScrollSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Toggle Typewriter Scrolling")
       .setDesc("Turns typewriter scrolling on or off globally")
-      .addToggle(toggle => toggle.setValue(this.plugin.settings.enabled)
-        .onChange((value) => {
-          this.plugin.settings.enabled = value;
-          this.plugin.saveData(this.plugin.settings);
-          if (this.plugin.settings.enabled) {
-            this.plugin.enable();
-          }
-          else {
-            this.plugin.disable();
-          }
-        }));
+      .addToggle(toggle =>
+        toggle.setValue(this.plugin.settings.enabled)
+          .onChange((newValue) => { this.plugin.toggleTypewriterScroll(newValue) })
+      );
 
     new Setting(containerEl)
       .setName("Zen Mode")
       .setDesc("Darkens non-active lines in the editor so you can focus on what you're typing")
-      .addToggle(toggle => toggle.setValue(this.plugin.settings.zenEnabled)
-        .onChange((value) => {
-          this.plugin.settings.zenEnabled = value;
-          this.plugin.saveData(this.plugin.settings);
-          if (this.plugin.settings.zenEnabled) {
-            this.plugin.enableZen();
-          }
-          else {
-            this.plugin.disableZen();
-          }
-        }));
+      .addToggle(toggle =>
+        toggle.setValue(this.plugin.settings.zenEnabled)
+          .onChange((newValue) => { this.plugin.toggleZen(newValue) })
+      );
 
   }
 }
