@@ -10,7 +10,7 @@
     "build": "rollup --config rollup.config.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "death_au",
   "repository": {
     "type": "git",
     "url": "https://github.com/deathau/cm-typewriter-scroll-obsidian"
