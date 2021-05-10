@@ -16,6 +16,7 @@ CodeMirror.defineOption("typewriterScrolling", false, function (cm, val, old) {
     if (old && old != CodeMirror.Init) {
         const linesEl = cm.getScrollerElement().querySelector('.CodeMirror-lines');
         linesEl.style.paddingTop = null;
+        linesEl.style.paddingBottom = null;
         cm.off("changes", onChanges);
         cm.off("cursorActivity", onCursorActivity);
         cm.off("keyHandled", onKeyHandled);
@@ -54,6 +55,7 @@ function onRefresh(cm) {
     const halfWindowHeight = cm.getWrapperElement().offsetHeight / 2;
     const linesEl = cm.getScrollerElement().querySelector('.CodeMirror-lines');
     linesEl.style.paddingTop = `${halfWindowHeight}px`;
+    linesEl.style.paddingBottom = `${halfWindowHeight}px`; // Thanks @walulula!
     if (cm.getSelection().length === 0) {
         cm.execCommand("scrollSelectionToCenter");
     }
