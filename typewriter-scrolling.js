@@ -4,7 +4,7 @@ CodeMirror.commands.scrollSelectionToCenter = function (cm) {
     if (cm.getOption("disableInput")) {
         return CodeMirror.Pass;
     }
-    var cursor = cm.getCursor('anchor');
+    var cursor = cm.getCursor('head');
     var charCoords = cm.charCoords(cursor, "local");
     var top = charCoords.top;
     var halfLineHeight = (charCoords.bottom - top) / 2;
@@ -18,12 +18,14 @@ CodeMirror.defineOption("typewriterScrolling", false, function (cm, val, old) {
         linesEl.style.paddingTop = null;
         cm.off("changes", onChanges);
         cm.off("cursorActivity", onCursorActivity);
+        cm.off("keyHandled", onKeyHandled);
         cm.off("refresh", onRefresh);
     }
     if (val) {
         onRefresh(cm);
         cm.on("changes", onChanges);
         cm.on("cursorActivity", onCursorActivity);
+        cm.on("keyHandled", onKeyHandled);
         cm.on("refresh", onRefresh);
     }
 });
@@ -47,13 +49,18 @@ function onCursorActivity(cm) {
     else {
         linesEl.classList.remove("selecting")
     }
-    cm.execCommand("scrollSelectionToCenter");
 }
 function onRefresh(cm) {
     const halfWindowHeight = cm.getWrapperElement().offsetHeight / 2;
     const linesEl = cm.getScrollerElement().querySelector('.CodeMirror-lines');
     linesEl.style.paddingTop = `${halfWindowHeight}px`;
     if (cm.getSelection().length === 0) {
+        cm.execCommand("scrollSelectionToCenter");
+    }
+}
+function onKeyHandled(cm, name, event) {
+    console.log(name);
+    if (name === "Up" || name === "Down" || name === "Left" || name === "Right") {
         cm.execCommand("scrollSelectionToCenter");
     }
 }
