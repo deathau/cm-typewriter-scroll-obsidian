@@ -1,9 +1,7 @@
 // all credit to azu: https://github.com/azu/codemirror-typewriter-scrolling/blob/b0ac076d72c9445c96182de87d974de2e8cc56e2/typewriter-scrolling.js
 "use strict";
+var movedByMouse = false;
 CodeMirror.commands.scrollSelectionToCenter = function (cm) {
-    if (cm.getOption("disableInput")) {
-        return CodeMirror.Pass;
-    }
     var cursor = cm.getCursor('head');
     var charCoords = cm.charCoords(cursor, "local");
     var top = charCoords.top;
@@ -17,38 +15,44 @@ CodeMirror.defineOption("typewriterScrolling", false, function (cm, val, old) {
         const linesEl = cm.getScrollerElement().querySelector('.CodeMirror-lines');
         linesEl.style.paddingTop = null;
         linesEl.style.paddingBottom = null;
-        cm.off("changes", onChanges);
         cm.off("cursorActivity", onCursorActivity);
-        cm.off("keyHandled", onKeyHandled);
         cm.off("refresh", onRefresh);
+        cm.off("mousedown", onMouseDown);
+        cm.off("keydown", onKeyDown);
+        cm.off("beforeChange", onBeforeChange);
     }
     if (val) {
         onRefresh(cm);
-        cm.on("changes", onChanges);
         cm.on("cursorActivity", onCursorActivity);
-        cm.on("keyHandled", onKeyHandled);
         cm.on("refresh", onRefresh);
+        cm.on("mousedown", onMouseDown);
+        cm.on("keydown", onKeyDown);
+        cm.on("beforeChange", onBeforeChange);
     }
 });
-function onChanges(cm, changes) {
-    if (cm.getSelection().length !== 0) {
-        return;
+function onMouseDown() {
+    movedByMouse = true;
+}
+const modiferKeys = ["Alt", "AltGraph", "CapsLock", "Control", "Fn", "FnLock", "Hyper", "Meta", "NumLock", "ScrollLock", "Shift", "Super", "Symbol", "SymbolLock"];
+function onKeyDown(cm, e) {
+    if (!modiferKeys.includes(e.key)) {
+        movedByMouse = false;
     }
-    for (var i = 0, len = changes.length; i < len; i++) {
-        var each = changes[i];
-        if (each.origin === '+input' || each.origin === '+delete') {
-            cm.execCommand("scrollSelectionToCenter");
-            return;
-        }
-    }
+}
+function onBeforeChange() {
+    movedByMouse = false;
 }
 function onCursorActivity(cm) {
     const linesEl = cm.getScrollerElement().querySelector('.CodeMirror-lines');
     if (cm.getSelection().length !== 0) {
-        linesEl.classList.add("selecting")
+        linesEl.classList.add("selecting");
     }
     else {
-        linesEl.classList.remove("selecting")
+        linesEl.classList.remove("selecting");
+    }
+
+    if(!movedByMouse) {
+        cm.execCommand("scrollSelectionToCenter");
     }
 }
 function onRefresh(cm) {
@@ -57,12 +61,6 @@ function onRefresh(cm) {
     linesEl.style.paddingTop = `${halfWindowHeight}px`;
     linesEl.style.paddingBottom = `${halfWindowHeight}px`; // Thanks @walulula!
     if (cm.getSelection().length === 0) {
-        cm.execCommand("scrollSelectionToCenter");
-    }
-}
-function onKeyHandled(cm, name, event) {
-    console.log(name);
-    if (name === "Up" || name === "Down" || name === "Left" || name === "Right") {
         cm.execCommand("scrollSelectionToCenter");
     }
 }
