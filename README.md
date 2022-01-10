@@ -75,6 +75,9 @@ much, feel free to throw some coins in my hat via the following:
 [![Paypal](https://img.shields.io/badge/paypal-deathau-yellow?style=social&logo=paypal)](https://paypal.me/deathau)
 
 # Version History
+## 0.2.1
+- Added padding to centre the top in live preview
+
 ## 0.2.0
 - CM6 (Live Preview) support!
 
