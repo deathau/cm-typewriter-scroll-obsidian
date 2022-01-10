@@ -75,6 +75,15 @@ much, feel free to throw some coins in my hat via the following:
 [![Paypal](https://img.shields.io/badge/paypal-deathau-yellow?style=social&logo=paypal)](https://paypal.me/deathau)
 
 # Version History
+## 0.2.0
+- CM6 (Live Preview) support!
+
+## 0.1.1
+- Modified scroll so it won't work on mouse selection.
+  - Instead, it specifically only works on 'up', 'down', 'left' and 'right' keyboard presses (alongside any typing edits).
+- Also, changed the cursor position used for the calculation so that shift+arrow selection is visible.
+- Fixed unexpected line jumping.
+
 ## 0.1.0
 - Updated APIs so toggling on and off should work again.
 
