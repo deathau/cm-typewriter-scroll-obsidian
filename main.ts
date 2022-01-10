@@ -1,6 +1,7 @@
 import './styles.scss'
 import './typewriter-scrolling'
-import { Plugin, MarkdownView, PluginSettingTab, App, Setting } from 'obsidian';
+import { Plugin, MarkdownView, PluginSettingTab, App, Setting } from 'obsidian'
+import { typewriterScroll } from './extension'
 
 class CMTypewriterScrollSettings {
   enabled: boolean;
@@ -80,6 +81,8 @@ export default class CMTypewriterScrollPlugin extends Plugin {
       // @ts-ignore
       cm.setOption("typewriterScrolling", true);
     });
+
+    this.registerEditorExtension(typewriterScroll())
   }
   
   disableTypewriterScroll = () => {

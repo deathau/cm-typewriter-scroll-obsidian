@@ -11,7 +11,25 @@ export default {
     format: 'cjs',
     exports: 'default'
   },
-  external: ['obsidian'],
+  external: [
+    "obsidian",
+    "electron",
+    "codemirror",
+    "@codemirror/autocomplete",
+    "@codemirror/closebrackets",
+    "@codemirror/commands",
+    "@codemirror/fold",
+    "@codemirror/gutter",
+    "@codemirror/history",
+    "@codemirror/language",
+    "@codemirror/rangeset",
+    "@codemirror/rectangular-selection",
+    "@codemirror/search",
+    "@codemirror/state",
+    "@codemirror/stream-parser",
+    "@codemirror/text",
+    "@codemirror/view"
+  ],
   plugins: [
     typescript(),
     nodeResolve({browser: true}),
