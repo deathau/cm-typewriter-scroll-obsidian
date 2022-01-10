@@ -7,12 +7,18 @@ const disallowedUserEvents = /^(select.pointer)$/
 
 const typewriterScrollPlugin = ViewPlugin.fromClass(class {
   private myUpdate = false;
+  private padding:string = null;
   
   constructor(private view: EditorView) { }
 
   update(update: ViewUpdate) {
     if (this.myUpdate) this.myUpdate = false;
     else {
+      this.padding = ((this.view.dom.clientHeight / 2) - (this.view.defaultLineHeight)) + "px"
+      if (this.padding != this.view.contentDOM.style.paddingTop) {
+        this.view.contentDOM.style.paddingTop = this.view.contentDOM.style.paddingBottom = this.padding
+      }
+
       const userEvents = update.transactions.map(tr => tr.annotation(Transaction.userEvent))
       const isAllowed = userEvents.reduce<boolean>(
         (result, event) => result && allowedUserEvents.test(event) && !disallowedUserEvents.test(event),
