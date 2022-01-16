@@ -7,16 +7,19 @@ class CMTypewriterScrollSettings {
   enabled: boolean;
   typewriterOffset: number;
   zenEnabled: boolean;
+  zenOpacity: number;
 }
 
 const DEFAULT_SETTINGS: CMTypewriterScrollSettings = {
   enabled: true,
   typewriterOffset: 0.5,
-  zenEnabled: false
+  zenEnabled: false,
+  zenOpacity: 0.25
 }
 
 export default class CMTypewriterScrollPlugin extends Plugin {
   settings: CMTypewriterScrollSettings;
+  private css: HTMLElement;
 
   async onload() {
     this.settings = Object.assign(DEFAULT_SETTINGS, await this.loadData());
@@ -24,6 +27,12 @@ export default class CMTypewriterScrollPlugin extends Plugin {
     // enable the plugin (based on settings)
     if (this.settings.enabled) this.enableTypewriterScroll();
     if (this.settings.zenEnabled) this.enableZen();
+
+    this.css = document.createElement('style');
+    this.css.id = 'plugin-typewriter-scroll';
+    this.css.setAttr('type', 'text/css');
+    document.getElementsByTagName("head")[0].appendChild(this.css);
+    this.css.innerText = `body{--zen-opacity: ${this.settings.zenOpacity};}`;
 
     // add the settings tab
     this.addSettingTab(new CMTypewriterScrollSettingTab(this.app, this));
@@ -80,6 +89,13 @@ export default class CMTypewriterScrollPlugin extends Plugin {
     // assign the new value and call the correct enable / disable function
     (this.settings.zenEnabled = newValue)
       ? this.enableZen() : this.disableZen();
+    // save the new settings
+    this.saveData(this.settings);
+  }
+
+  changeZenOpacity = (newValue: number = 0.25) => {
+    this.settings.zenOpacity = newValue;
+    this.css.innerText = `body{--zen-opacity: ${newValue};}`;
     // save the new settings
     this.saveData(this.settings);
   }
@@ -157,5 +173,13 @@ class CMTypewriterScrollSettingTab extends PluginSettingTab {
           .onChange((newValue) => { this.plugin.toggleZen(newValue) })
       );
 
+    new Setting(containerEl)
+      .setName("Zen Opacity")
+      .setDesc("The opacity of unfocused lines in zen mode")
+      .addSlider(slider =>
+        slider.setLimits(0, 100, 5)
+          .setValue(this.plugin.settings.zenOpacity * 100)
+          .onChange((newValue) => { this.plugin.changeZenOpacity(newValue / 100) })
+      );
   }
 }
