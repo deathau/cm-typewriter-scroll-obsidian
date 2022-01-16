@@ -5,11 +5,13 @@ import { typewriterScroll } from './extension'
 
 class CMTypewriterScrollSettings {
   enabled: boolean;
+  typewriterOffset: number;
   zenEnabled: boolean;
 }
 
 const DEFAULT_SETTINGS: CMTypewriterScrollSettings = {
   enabled: true,
+  typewriterOffset: 0.5,
   zenEnabled: false
 }
 
@@ -62,6 +64,16 @@ export default class CMTypewriterScrollPlugin extends Plugin {
     this.saveData(this.settings);
   }
 
+  changeTypewriterOffset = (newValue: number) => {
+    console.log(newValue)
+    this.settings.typewriterOffset = newValue;
+    if (this.settings.enabled) {
+      this.disableTypewriterScroll();
+      this.enableTypewriterScroll();
+    }
+    this.saveData(this.settings);
+  }
+
   toggleZen = (newValue: boolean = null) => {
     // if no value is passed in, toggle the existing value
     if (newValue === null) newValue = !this.settings.zenEnabled;
@@ -82,7 +94,7 @@ export default class CMTypewriterScrollPlugin extends Plugin {
       cm.setOption("typewriterScrolling", true);
     });
 
-    this.registerEditorExtension(typewriterScroll())
+    this.registerEditorExtension(typewriterScroll({ typewriterOffset: this.settings.typewriterOffset}));
   }
   
   disableTypewriterScroll = () => {
@@ -126,6 +138,15 @@ class CMTypewriterScrollSettingTab extends PluginSettingTab {
       .addToggle(toggle =>
         toggle.setValue(this.plugin.settings.enabled)
           .onChange((newValue) => { this.plugin.toggleTypewriterScroll(newValue) })
+      );
+    
+    new Setting(containerEl)
+      .setName("Center offset")
+      .setDesc("Positions the typewriter text at the specified percentage of the screen")
+      .addSlider(slider =>
+        slider.setLimits(0, 100, 5)
+          .setValue(this.plugin.settings.typewriterOffset * 100)
+          .onChange((newValue) => { this.plugin.changeTypewriterOffset(newValue/100)})
       );
 
     new Setting(containerEl)

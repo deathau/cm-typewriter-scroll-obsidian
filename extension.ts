@@ -1,22 +1,28 @@
-import { Extension, SelectionRange, EditorState, EditorSelection, Transaction, Prec } from "@codemirror/state"
+import { Extension, Transaction, Facet } from "@codemirror/state"
 import { ViewPlugin, ViewUpdate, EditorView } from "@codemirror/view"
 declare type ScrollStrategy = "nearest" | "start" | "end" | "center";
 
 const allowedUserEvents = /^(select|input|delete|undo|redo)(\..+)?$/
 const disallowedUserEvents = /^(select.pointer)$/
 
+const typewriterOffset = Facet.define<number, number>({
+  combine: values => values.length ? Math.min(...values) : 0.5
+})
+
 const typewriterScrollPlugin = ViewPlugin.fromClass(class {
   private myUpdate = false;
-  private padding:string = null;
+  private topPadding: string = null;
   
   constructor(private view: EditorView) { }
 
   update(update: ViewUpdate) {
     if (this.myUpdate) this.myUpdate = false;
     else {
-      this.padding = ((this.view.dom.clientHeight / 2) - (this.view.defaultLineHeight)) + "px"
-      if (this.padding != this.view.contentDOM.style.paddingTop) {
-        this.view.contentDOM.style.paddingTop = this.view.contentDOM.style.paddingBottom = this.padding
+      const offset = (update.view.dom.clientHeight * update.view.state.facet(typewriterOffset)) - (update.view.defaultLineHeight / 2)
+      this.topPadding = offset + "px"
+      if (this.topPadding != this.view.contentDOM.style.paddingTop) {
+        this.view.contentDOM.style.paddingTop = this.topPadding
+        this.view.contentDOM.style.paddingBottom = (update.view.dom.clientHeight - offset) + "px";
       }
 
       const userEvents = update.transactions.map(tr => tr.annotation(Transaction.userEvent))
@@ -43,7 +49,9 @@ const typewriterScrollPlugin = ViewPlugin.fromClass(class {
         // don't bother with this next part if the range (line??) hasn't changed
         if (prevHead != head) {
           // this is the effect that does the centering
-          const effect = EditorView.scrollIntoView(head, { y: "center" })
+          let offset = (update.view.dom.clientHeight * update.view.state.facet(typewriterOffset)) - (update.view.defaultLineHeight / 2);
+          const effect = EditorView.scrollIntoView(head, { y: "start", yMargin: offset });
+          // const effect = EditorView.scrollIntoView(head, { y: "center" });
           const transaction = this.view.state.update({ effects: effect });
           this.view.dispatch(transaction)
         }
@@ -52,8 +60,9 @@ const typewriterScrollPlugin = ViewPlugin.fromClass(class {
   }
 })
 
-export function typewriterScroll(options: any = {}): Extension {
+export function typewriterScroll(options: {typewriterOffset?: number} = {}): Extension {
   return [
+    options.typewriterOffset == null ? [] : typewriterOffset.of(options.typewriterOffset),
     typewriterScrollPlugin
   ]
 }
