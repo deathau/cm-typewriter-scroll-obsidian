@@ -1,6 +1,6 @@
 {
   "name": "cm-typewriter-scroll-obsidian",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Typewriter-style scrolling which keeps the view centered in the editor.",
   "main": "main.js",
   "scripts": {

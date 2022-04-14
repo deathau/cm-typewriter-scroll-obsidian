@@ -5,6 +5,6 @@
   "authorUrl": "https://github.com/deathau",
   "description": "Typewriter-style scrolling which keeps the view centered in the editor.",
   "isDesktopOnly": false,
-  "version": "0.2.1",
+  "version": "0.2.2",
   "minAppVersion": "0.10.0"
 }
