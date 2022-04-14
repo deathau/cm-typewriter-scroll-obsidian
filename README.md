@@ -75,6 +75,10 @@ much, feel free to throw some coins in my hat via the following:
 [![Paypal](https://img.shields.io/badge/paypal-deathau-yellow?style=social&logo=paypal)](https://paypal.me/deathau)
 
 # Version History
+## 0.2.2
+- Added a setting to adjust the typewriter mode offset (more towards the top or bottom of the page).
+- Fixed a bug preventing the typewriter mode from being disabled without reloading Obsidian.
+
 ## 0.2.1
 - Added padding to centre the top in live preview
 
