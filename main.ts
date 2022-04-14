@@ -1,7 +1,8 @@
+import { Extension } from '@codemirror/state';
 import './styles.scss'
 import './typewriter-scrolling'
 import { Plugin, MarkdownView, PluginSettingTab, App, Setting } from 'obsidian'
-import { typewriterScroll } from './extension'
+import { resetTypewriterSrcoll, typewriterScroll } from './extension'
 
 class CMTypewriterScrollSettings {
   enabled: boolean;
@@ -20,6 +21,8 @@ const DEFAULT_SETTINGS: CMTypewriterScrollSettings = {
 export default class CMTypewriterScrollPlugin extends Plugin {
   settings: CMTypewriterScrollSettings;
   private css: HTMLElement;
+  private ext: Extension;
+  private extArray: Extension[] = [];
 
   async onload() {
     this.settings = Object.assign(DEFAULT_SETTINGS, await this.loadData());
@@ -74,10 +77,11 @@ export default class CMTypewriterScrollPlugin extends Plugin {
   }
 
   changeTypewriterOffset = (newValue: number) => {
-    console.log(newValue)
     this.settings.typewriterOffset = newValue;
     if (this.settings.enabled) {
       this.disableTypewriterScroll();
+      // delete the extension, so it gets recreated with the new value
+      delete this.ext;
       this.enableTypewriterScroll();
     }
     this.saveData(this.settings);
@@ -110,7 +114,16 @@ export default class CMTypewriterScrollPlugin extends Plugin {
       cm.setOption("typewriterScrolling", true);
     });
 
-    this.registerEditorExtension(typewriterScroll({ typewriterOffset: this.settings.typewriterOffset}));
+    if (!this.ext) {
+      this.ext = typewriterScroll({ typewriterOffset: this.settings.typewriterOffset });
+      this.extArray = [this.ext];
+      this.registerEditorExtension(this.extArray);
+    }
+    else {
+      this.extArray.splice(0, this.extArray.length);
+      this.extArray.push(this.ext);
+      this.app.workspace.updateOptions();
+    }
   }
   
   disableTypewriterScroll = () => {
@@ -122,6 +135,11 @@ export default class CMTypewriterScrollPlugin extends Plugin {
       // @ts-ignore
       cm.setOption("typewriterScrolling", false);
     });
+
+    // clear out the registered extension
+    this.extArray.splice(0, this.extArray.length);
+    this.extArray.push(resetTypewriterSrcoll())
+    this.app.workspace.updateOptions();
   }
 
   enableZen = () => {

@@ -9,22 +9,40 @@ const typewriterOffset = Facet.define<number, number>({
   combine: values => values.length ? Math.min(...values) : 0.5
 })
 
+const resetTypewriterScrollPaddingPlugin = ViewPlugin.fromClass(class {
+  constructor(private view: EditorView) { }
+
+  update(update: ViewUpdate) {
+    if (this.view.contentDOM.style.paddingTop) {
+      this.view.contentDOM.style.paddingTop = ""
+      this.view.contentDOM.style.paddingBottom = (update.view.dom.clientHeight / 2) + "px";
+    }
+  }
+})
+
+const typewriterScrollPaddingPlugin = ViewPlugin.fromClass(class {
+  private topPadding: string = null;
+
+  constructor(private view: EditorView) { }
+
+  update(update: ViewUpdate) {
+    const offset = (update.view.dom.clientHeight * update.view.state.facet(typewriterOffset)) - (update.view.defaultLineHeight / 2)
+    this.topPadding = offset + "px"
+    if (this.topPadding != this.view.contentDOM.style.paddingTop) {
+      this.view.contentDOM.style.paddingTop = this.topPadding
+      this.view.contentDOM.style.paddingBottom = (update.view.dom.clientHeight - offset) + "px";
+    }
+  }
+})
+
 const typewriterScrollPlugin = ViewPlugin.fromClass(class {
   private myUpdate = false;
-  private topPadding: string = null;
   
   constructor(private view: EditorView) { }
 
   update(update: ViewUpdate) {
     if (this.myUpdate) this.myUpdate = false;
     else {
-      const offset = (update.view.dom.clientHeight * update.view.state.facet(typewriterOffset)) - (update.view.defaultLineHeight / 2)
-      this.topPadding = offset + "px"
-      if (this.topPadding != this.view.contentDOM.style.paddingTop) {
-        this.view.contentDOM.style.paddingTop = this.topPadding
-        this.view.contentDOM.style.paddingBottom = (update.view.dom.clientHeight - offset) + "px";
-      }
-
       const userEvents = update.transactions.map(tr => tr.annotation(Transaction.userEvent))
       const isAllowed = userEvents.reduce<boolean>(
         (result, event) => result && allowedUserEvents.test(event) && !disallowedUserEvents.test(event),
@@ -63,6 +81,13 @@ const typewriterScrollPlugin = ViewPlugin.fromClass(class {
 export function typewriterScroll(options: {typewriterOffset?: number} = {}): Extension {
   return [
     options.typewriterOffset == null ? [] : typewriterOffset.of(options.typewriterOffset),
+    typewriterScrollPaddingPlugin,
     typewriterScrollPlugin
+  ]
+}
+
+export function resetTypewriterSrcoll(): Extension {
+  return [
+    resetTypewriterScrollPaddingPlugin
   ]
 }

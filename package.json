@@ -21,7 +21,7 @@
     "@rollup/plugin-node-resolve": "^9.0.0",
     "@rollup/plugin-typescript": "^6.0.0",
     "@types/node": "^14.14.16",
-    "obsidian": "^0.13.11",
+    "obsidian": "^0.14.6",
     "rollup": "^2.35.1",
     "rollup-plugin-scss": "^2.6.1",
     "sass": "^1.30.0",
