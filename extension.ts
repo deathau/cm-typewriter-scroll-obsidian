@@ -14,7 +14,6 @@ const resetTypewriterScrollPaddingPlugin = ViewPlugin.fromClass(class {
 
   update(update: ViewUpdate) {
     if (this.view.contentDOM.style.paddingTop) {
-      this.view.contentDOM.style.paddingTop = ""
       this.view.contentDOM.style.paddingBottom = (update.view.dom.clientHeight / 2) + "px";
     }
   }
@@ -29,7 +28,6 @@ const typewriterScrollPaddingPlugin = ViewPlugin.fromClass(class {
     const offset = (update.view.dom.clientHeight * update.view.state.facet(typewriterOffset)) - (update.view.defaultLineHeight / 2)
     this.topPadding = offset + "px"
     if (this.topPadding != this.view.contentDOM.style.paddingTop) {
-      this.view.contentDOM.style.paddingTop = this.topPadding
       this.view.contentDOM.style.paddingBottom = (update.view.dom.clientHeight - offset) + "px";
     }
   }
