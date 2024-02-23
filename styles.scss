@@ -5,4 +5,16 @@ body.plugin-cm-typewriter-scroll-zen {
   .cm-editor.cm-focused .cm-line:not(.cm-active) {
     opacity: var(--zen-opacity);
   }
+
+  .cm-editor.cm-focused .callout {
+	opacity: var(--zen-opacity);
+}
+
+  .cm-editor.cm-focused .metadata-container {
+	opacity: var(--zen-opacity);
+}
+
+  .cm-editor.cm-focused .inline-title {
+	opacity: var(--zen-opacity);
+}
 }
