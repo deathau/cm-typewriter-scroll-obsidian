@@ -31,7 +31,7 @@ export default {
     "@codemirror/view"
   ],
   plugins: [
-    typescript(),
+    typescript({ include: ["**/*.ts"] }),
     nodeResolve({browser: true}),
     commonjs(),
     scss({ output: 'styles.css', sass: require('sass') })
